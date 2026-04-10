@@ -3,52 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NPP Control Interface v2.0</title>
+    <title>NPP Interface v3.1 PRO</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="console-frame">
         <header>
-            <h1>REACTOR CORE MONITORING - UNIT 4</h1>
+            <div class="logo-container">
+                <div class="reactor-icon"></div>
+                <h1>REACTOR CORE MONITORING - UNIT 4</h1>
+            </div>
             <div id="system-clock">00:00:00</div>
         </header>
 
         <main id="control-grid">
             <section class="panel monitoring">
-                <h3>METRICS</h3>
-                <div class="gauge-container">
-                    <div class="metric">
-                        <label>TEMP</label>
-                        <div class="value"><span id="temp-val">285</span>°C</div>
+                <h3>CORE METRICS</h3>
+                <div class="metric-block">
+                    <label>CORE TEMP</label>
+                    <div class="value"><span id="temp-val">285</span>°C</div>
+                    <div class="analog-gauge">
+                        <div class="gauge-bar" id="temp-gauge" style="width: 25%;"></div>
+                        <div class="gauge-marks"><span>200</span><span>400</span><span>600</span></div>
                     </div>
+                </div>
+                <div class="metric-block output-row">
                     <div class="metric">
-                        <label>OUTPUT</label>
+                        <label>PWR OUTPUT</label>
                         <div class="value"><span id="power-val">0</span> MW</div>
                     </div>
                     <div class="metric">
-                        <label>RODS</label>
+                        <label>RODS POS</label>
                         <div class="value"><span id="rod-val">0</span>%</div>
                     </div>
                 </div>
             </section>
 
-            <section class="panel status">
-                <h3>CORE STATUS</h3>
-                <div id="status-indicator" class="status-ok">READY</div>
+            <section class="panel status-cooling">
+                <div class="status-box">
+                    <h3>CORE STATUS</h3>
+                    <div id="status-indicator" class="status-ok">READY</div>
+                </div>
+                
+                <div class="cooling-box">
+                    <h3>SECONDARY SYSTEMS</h3>
+                    <div class="cooling-controls">
+                        <label>Cooling Pump 1</label>
+                        <div class="switch-container">
+                            <span class="pumps-label off" id="pump1-label">OFF</span>
+                            <button class="pump-switch" onclick="reactor.togglePump(1)" id="pump1-btn"></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel log">
+                <h3>OPERATIONAL LOG</h3>
                 <div class="log-box" id="event-log">
-                    > SYSTEM INITIALIZED
+                    <div class="log-entry system-msg">[SYSTEM INITIALIZED]</div>
                 </div>
             </section>
 
             <section class="panel controls">
                 <h3>PRIMARY CONTROLS</h3>
-                <div class="button-group">
-                    <button class="btn btn-up" onmousedown="reactor.startAdjust(0.5)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS UP</button>
-                    <button class="btn btn-down" onmousedown="reactor.startAdjust(-0.5)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS DOWN</button>
+                <div class="button-row">
+                    <button class="btn btn-primary btn-up" onmousedown="reactor.startAdjust(0.25)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS UP</button>
+                    <button class="btn btn-primary btn-down" onmousedown="reactor.startAdjust(-0.25)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS DOWN</button>
                 </div>
-                <button class="btn-emergency" onclick="reactor.scram()">SCRAM</button>
+                <div class="button-row bottom-controls">
+                    <button class="btn btn-alarm" id="alarm-btn" onclick="AudioSystem.toggleAlarmManual()">ALARM SILENCE</button>
+                    <button class="btn btn-emergency" onclick="reactor.scram()">SCRAM</button>
+                </div>
             </section>
         </main>
+        <footer>
+            <span>SECURITY CLASS 3 // Unauthorized use prohibited // ECHO AI SIMULATOR v1.0</span>
+        </footer>
     </div>
 
     <script src="audio.js"></script>
