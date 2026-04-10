@@ -8,29 +8,33 @@ class NuclearReactor {
         this.adjustInterval = null;
     }
 
+    // Bereken de natuurkunde van de kern
     calculatePhysics() {
         if (!this.isScram) {
-            // Regelstaven genereren hitte
-            let targetTemp = 285 + (this.rods * 5.5);
+            // Target temperatuur stijgt door staven (rods)
+            let targetTemp = 285 + (this.rods * 6.0);
             
-            // Pomp koelt de target temperatuur af
-            if (this.pumpActive) targetTemp -= 120;
+            // Koeling effect van de pomp (haalt de target naar beneden)
+            if (this.pumpActive) targetTemp -= 150;
 
-            // Vloeiende overgang van de temperatuur
+            // Vloeiende overgang (traagheid van de hitte)
             this.temp += (targetTemp - this.temp) * 0.05;
-            this.power = Math.max(0, this.rods * 14.5);
+            this.power = Math.max(0, this.rods * 15.5);
         } else {
-            // Afkoeling na SCRAM (sneller met pomp)
-            let coolingFactor = this.pumpActive ? 0.07 : 0.02;
-            this.temp += (285 - this.temp) * coolingFactor;
-            this.power *= 0.6;
+            // Afkoelen na SCRAM (sneller als de pomp aan staat)
+            let coolingRate = this.pumpActive ? 0.08 : 0.02;
+            this.temp += (285 - this.temp) * coolingRate;
+            this.power *= 0.5;
             
-            if (this.temp < 290) this.isScram = false;
+            // Auto-reset SCRAM als het afgekoeld is
+            if (this.temp < 288) this.isScram = false;
         }
     }
 
+    // Regelstaven bediening
     startAdjust(val) {
         if (this.isScram) return;
+        if (this.adjustInterval) clearInterval(this.adjustInterval);
         this.adjustInterval = setInterval(() => {
             this.rods = Math.min(Math.max(this.rods + val, 0), 100);
         }, 50);
@@ -38,31 +42,37 @@ class NuclearReactor {
 
     stopAdjust() {
         clearInterval(this.adjustInterval);
+        this.adjustInterval = null;
     }
 
+    // Koelpomp aan/uit
     togglePump(id) {
         this.pumpActive = !this.pumpActive;
-        const btn = document.getElementById(`pump${id}-btn`);
         const label = document.getElementById(`pump${id}-label`);
+        const btn = document.getElementById(`pump${id}-btn`);
         
         if (this.pumpActive) {
-            btn.classList.add('active');
             label.innerText = "ON";
-            label.style.color = "#00ff00";
-            this.log(`Cooling Pump ${id}: ACTIVATED`);
+            label.className = "pumps-label on";
+            btn.classList.add('active');
+            this.log(`Cooling Pump ${id}: STARTED`);
         } else {
-            btn.classList.remove('active');
             label.innerText = "OFF";
-            label.style.color = "#ff4444";
-            this.log(`Cooling Pump ${id}: DEACTIVATED`);
+            label.className = "pumps-label off";
+            btn.classList.remove('active');
+            this.log(`Cooling Pump ${id}: STOPPED`);
         }
     }
 
     scram() {
         this.isScram = true;
         this.rods = 0;
-        this.log("!!! EMERGENCY SHUTDOWN: SCRAM INITIATED !!!");
+        this.log("!!! EMERGENCY SHUTDOWN ACTIVATED !!!");
         AudioSystem.playAlarm();
+        
+        // Visuele flits
+        document.body.style.backgroundColor = "#300";
+        setTimeout(() => document.body.style.backgroundColor = "#000", 200);
     }
 
     log(msg) {
@@ -71,9 +81,9 @@ class NuclearReactor {
         entry.className = 'log-entry';
         entry.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
         log.prepend(entry);
-        if (log.children.length > 10) log.removeChild(log.lastChild);
+        if (log.children.length > 12) log.removeChild(log.lastChild);
     }
 }
 
-// Initialiseer de reactor globaal zodat de HTML erbij kan
+// Maak de reactor beschikbaar voor de andere scripts
 const reactor = new NuclearReactor();
