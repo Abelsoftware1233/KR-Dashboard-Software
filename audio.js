@@ -69,3 +69,32 @@ const AudioSystem = {
         }, 200);
     }
 };
+const AudioSystem = {
+    ctx: null,
+    osc: null,
+
+    init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    },
+
+    playAlarm() {
+        this.init();
+        if (this.osc) return;
+        this.osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        this.osc.type = 'sawtooth';
+        this.osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        this.osc.frequency.linearRampToValueAtTime(880, this.ctx.currentTime + 1);
+        this.osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        gain.gain.value = 0.05;
+        this.osc.start();
+    },
+
+    stop() { // Deze naam moet 'stop' zijn voor je HTML knop
+        if (this.osc) {
+            this.osc.stop();
+            this.osc = null;
+        }
+    }
+};
