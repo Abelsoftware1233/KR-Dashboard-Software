@@ -1,59 +1,45 @@
-// Initialiseer de reactor
-const reactor = new NuclearReactor("UNIT-4");
+function updateUI() {
+    // Haal de reactor op uit het globale window object
+    const r = window.reactor;
 
-function updateLoop() {
-    // 1. Bereken nieuwe waarden (fysica)
-    reactor.calculatePhysics();
-    
-    // 2. Update de UI (Metrieken)
-    document.getElementById('temp-val').innerText = reactor.temp.toFixed(1);
-    
-    // Analog Gauge update
-    const gaugeBar = document.getElementById('temp-gauge');
-    // Scale 200°C - 600°C (285 is start, 650 is meltdown)
-    let gaugePercentage = Math.min(Math.max((reactor.temp - 200) / 400 * 100, 0), 100);
-    gaugeBar.style.width = gaugePercentage + "%";
-    
-    // Gauge kleur verandering
-    if (reactor.temp > 550) { gaugeBar.style.background = "var(--danger-color)"; }
-    else if (reactor.temp > 450) { gaugeBar.style.background = "#ffff00"; }
-    else { gaugeBar.style.background = "var(--ok-color)"; }
+    // Update Tekst
+    document.getElementById('temp-val').innerText = r.temp.toFixed(1);
+    document.getElementById('power-val').innerText = (r.rods * 12).toFixed(0);
+    document.getElementById('rod-val').innerText = r.rods.toFixed(0);
 
-    document.getElementById('power-val').innerText = (reactor.rods * 18).toFixed(0);
-    document.getElementById('rod-val').innerText = reactor.rods.toFixed(0);
-    
-    // Status logica
-    const indicator = document.getElementById('status-indicator');
-    
-    if (reactor.isMeltdown) {
-        indicator.innerText = "!!! MELTDOWN !!!";
-        indicator.className = "status-crit Meltdown!!!";
-        // Het alarm is geactiveerd door reactor.js
-    } else if (reactor.temp > 600) {
-        indicator.innerText = "MELTDOWN THREAT";
-        indicator.className = "status-crit Meltdown imminent";
-        if (!reactor.isScram) AudioSystem.playAlarm(); // Start alarm als het kritiek is
-    } else if (reactor.temp > 480) {
-        indicator.innerText = "TEMP WARNING";
-        indicator.className = "status-warn Temp High";
-    } else if (reactor.isScram) {
-        indicator.innerText = "AUTO SCRAM";
-        indicator.className = "status-crit Alarm (SCRAM)";
+    // Update de Balk (Gauge)
+    const gauge = document.getElementById('temp-gauge');
+    let percentage = ((r.temp - 285) / (600 - 285)) * 100;
+    gauge.style.width = Math.min(Math.max(percentage, 5), 100) + "%";
+
+    // Kleur van de balk
+    if (r.temp > 500) gauge.style.background = "#ff3c3c";
+    else if (r.temp > 400) gauge.style.background = "#ffb400";
+    else gauge.style.background = "#00ff73";
+
+    // Status Indicator
+    const status = document.getElementById('status-indicator');
+    if (r.isMeltdown) {
+        status.innerText = "MELTDOWN";
+        status.className = "status-crit";
+    } else if (r.isScram) {
+        status.innerText = "SCRAM ACTIVE";
+        status.className = "status-crit";
+    } else if (r.temp > 450) {
+        status.innerText = "WARNING";
+        status.className = "status-warn";
     } else {
-        indicator.innerText = "NOMINAL";
-        indicator.className = "status-ok";
-        // Stop alarm als het weer veilig is (en niet handmatig gesilenced)
-        if (!AudioSystem.isManualSilence) {
-            AudioSystem.stopAlarm();
-        }
+        status.innerText = "NOMINAL";
+        status.className = "status-ok";
     }
 
-    // Systeemklok
-    document.getElementById('system-clock').innerText = new Date().toLocaleTimeString('nl-NL');
+    // Klok
+    document.getElementById('system-clock').innerText = new Date().toLocaleTimeString();
 
-    // Volgende frame aanvragen (60fps)
-    requestAnimationFrame(updateLoop);
+    // Loop de fysica en UI
+    r.calculatePhysics();
+    requestAnimationFrame(updateUI);
 }
 
-// Start de simulatie
-updateLoop();
+// Start de loop zodra de pagina geladen is
+window.onload = updateUI;
