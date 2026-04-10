@@ -1,44 +1,38 @@
 class NuclearReactor {
-    constructor(id) {
-        this.id = id;
+    constructor() {
         this.temp = 285.0;
         this.rods = 0.0;
         this.power = 0.0;
         this.isScram = false;
-        this.isMeltdown = false;
+        this.pumpActive = false;
         this.adjustInterval = null;
     }
 
     calculatePhysics() {
         if (!this.isScram) {
-            // Natuurlijke hitte opbouw op basis van regelstaven
-            let targetTemp = 285 + (this.rods * 5.2);
-            // Geleidelijke verandering (traagheid)
-            this.temp += (targetTemp - this.temp) * 0.05;
-            this.power = this.rods * 15.2;
-        } else {
-            // Afkoelen na SCRAM
-            this.temp += (285 - this.temp) * 0.02;
-            this.power *= 0.5;
+            // Regelstaven genereren hitte
+            let targetTemp = 285 + (this.rods * 5.5);
             
-            // Auto-reset SCRAM status als de temperatuur veilig is
-            if (this.temp < 290) {
-                this.isScram = false;
-                this.log("System stabilized. Ready for restart.");
-            }
-        }
+            // Pomp koelt de target temperatuur af
+            if (this.pumpActive) targetTemp -= 120;
 
-        // Meltdown check
-        if (this.temp > 800) {
-            this.isMeltdown = true;
+            // Vloeiende overgang van de temperatuur
+            this.temp += (targetTemp - this.temp) * 0.05;
+            this.power = Math.max(0, this.rods * 14.5);
+        } else {
+            // Afkoeling na SCRAM (sneller met pomp)
+            let coolingFactor = this.pumpActive ? 0.07 : 0.02;
+            this.temp += (285 - this.temp) * coolingFactor;
+            this.power *= 0.6;
+            
+            if (this.temp < 290) this.isScram = false;
         }
     }
 
     startAdjust(val) {
-        if (this.isScram || this.isMeltdown) return;
+        if (this.isScram) return;
         this.adjustInterval = setInterval(() => {
             this.rods = Math.min(Math.max(this.rods + val, 0), 100);
-            // Optioneel: log elke stap of elke 10%
         }, 50);
     }
 
@@ -46,21 +40,40 @@ class NuclearReactor {
         clearInterval(this.adjustInterval);
     }
 
+    togglePump(id) {
+        this.pumpActive = !this.pumpActive;
+        const btn = document.getElementById(`pump${id}-btn`);
+        const label = document.getElementById(`pump${id}-label`);
+        
+        if (this.pumpActive) {
+            btn.classList.add('active');
+            label.innerText = "ON";
+            label.style.color = "#00ff00";
+            this.log(`Cooling Pump ${id}: ACTIVATED`);
+        } else {
+            btn.classList.remove('active');
+            label.innerText = "OFF";
+            label.style.color = "#ff4444";
+            this.log(`Cooling Pump ${id}: DEACTIVATED`);
+        }
+    }
+
     scram() {
         this.isScram = true;
         this.rods = 0;
-        this.log("!!! EMERGENCY SHUTDOWN ACTIVATED !!!");
-        // Visuele feedback (flits)
-        document.body.style.backgroundColor = "#200";
-        setTimeout(() => { document.body.style.backgroundColor = "#000"; }, 200);
+        this.log("!!! EMERGENCY SHUTDOWN: SCRAM INITIATED !!!");
+        AudioSystem.playAlarm();
     }
 
     log(msg) {
         const log = document.getElementById('event-log');
-        if (log) {
-            log.innerHTML = `> ${msg}<br>` + log.innerHTML;
-            // Houd de log compact
-            if (log.children.length > 20) log.removeChild(log.lastChild);
-        }
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+        log.prepend(entry);
+        if (log.children.length > 10) log.removeChild(log.lastChild);
     }
 }
+
+// Initialiseer de reactor globaal zodat de HTML erbij kan
+const reactor = new NuclearReactor();
