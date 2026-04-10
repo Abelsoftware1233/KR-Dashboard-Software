@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NPP Control Interface v1.0</title>
+    <title>NPP Control Interface v2.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,27 +25,34 @@
                         <label>OUTPUT</label>
                         <div class="value"><span id="power-val">0</span> MW</div>
                     </div>
+                    <div class="metric">
+                        <label>RODS</label>
+                        <div class="value"><span id="rod-val">0</span>%</div>
+                    </div>
                 </div>
             </section>
 
             <section class="panel status">
                 <h3>CORE STATUS</h3>
-                <div id="status-indicator" class="status-ok">NOMINAL</div>
+                <div id="status-indicator" class="status-ok">READY</div>
                 <div class="log-box" id="event-log">
-                    [SYSTEM READY]
+                    > SYSTEM INITIALIZED
                 </div>
             </section>
 
             <section class="panel controls">
                 <h3>PRIMARY CONTROLS</h3>
                 <div class="button-group">
-                    <button class="btn btn-up" onmousedown="startAdjust(0.5)" onmouseup="stopAdjust()">RODS UP</button>
-                    <button class="btn btn-down" onmousedown="startAdjust(-0.5)" onmouseup="stopAdjust()">RODS DOWN</button>
+                    <button class="btn btn-up" onmousedown="reactor.startAdjust(0.5)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS UP</button>
+                    <button class="btn btn-down" onmousedown="reactor.startAdjust(-0.5)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS DOWN</button>
                 </div>
-                <button class="btn-emergency" onclick="scram()">SCRAM</button>
+                <button class="btn-emergency" onclick="reactor.scram()">SCRAM</button>
             </section>
         </main>
     </div>
-    <script src="script.js"></script>
+
+    <script src="audio.js"></script>
+    <script src="reactor.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
