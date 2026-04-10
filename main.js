@@ -1,45 +1,46 @@
-function updateUI() {
-    // Haal de reactor op uit het globale window object
-    const r = window.reactor;
+function runSimulation() {
+    // 1. Fysica berekenen
+    reactor.calculatePhysics();
 
-    // Update Tekst
-    document.getElementById('temp-val').innerText = r.temp.toFixed(1);
-    document.getElementById('power-val').innerText = (r.rods * 12).toFixed(0);
-    document.getElementById('rod-val').innerText = r.rods.toFixed(0);
+    // 2. Cijfers updaten
+    document.getElementById('temp-val').innerText = reactor.temp.toFixed(1);
+    document.getElementById('power-val').innerText = (reactor.rods * 12.5).toFixed(0);
+    document.getElementById('rod-val').innerText = reactor.rods.toFixed(0);
 
-    // Update de Balk (Gauge)
+    // 3. Balk (Gauge) updaten
     const gauge = document.getElementById('temp-gauge');
-    let percentage = ((r.temp - 285) / (600 - 285)) * 100;
-    gauge.style.width = Math.min(Math.max(percentage, 5), 100) + "%";
+    let percentage = ((reactor.temp - 285) / (620 - 285)) * 100;
+    gauge.style.width = Math.min(Math.max(percentage, 2), 100) + "%";
 
-    // Kleur van de balk
-    if (r.temp > 500) gauge.style.background = "#ff3c3c";
-    else if (r.temp > 400) gauge.style.background = "#ffb400";
-    else gauge.style.background = "#00ff73";
-
-    // Status Indicator
+    // 4. Status & Alarm Logica
     const status = document.getElementById('status-indicator');
-    if (r.isMeltdown) {
+    
+    if (reactor.isMeltdown) {
         status.innerText = "MELTDOWN";
         status.className = "status-crit";
-    } else if (r.isScram) {
+        AudioSystem.play();
+    } else if (reactor.isScram) {
         status.innerText = "SCRAM ACTIVE";
         status.className = "status-crit";
-    } else if (r.temp > 450) {
-        status.innerText = "WARNING";
-        status.className = "status-warn";
+        AudioSystem.play();
+        if (reactor.temp < 290) reactor.isScram = false; // Reset na afkoeling
+    } else if (reactor.temp > 500) {
+        status.innerText = "OVERHEAT";
+        status.className = "status-crit";
+        AudioSystem.play();
     } else {
         status.innerText = "NOMINAL";
         status.className = "status-ok";
+        AudioSystem.stop();
     }
 
     // Klok
     document.getElementById('system-clock').innerText = new Date().toLocaleTimeString();
 
-    // Loop de fysica en UI
-    r.calculatePhysics();
-    requestAnimationFrame(updateUI);
+    requestAnimationFrame(runSimulation);
 }
 
-// Start de loop zodra de pagina geladen is
-window.onload = updateUI;
+// Start de loop
+window.onload = () => {
+    runSimulation();
+};
