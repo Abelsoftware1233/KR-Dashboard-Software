@@ -71,3 +71,19 @@ const MainController = {
 window.onload = () => {
     MainController.init();
 };
+function mainLoop() {
+    // Update beide units als ze bestaan
+    if (window.u4) {
+        window.u4.updatePhysics();
+    }
+    if (window.u5) {
+        window.u5.updatePhysics();
+    }
+
+    // Tijd update
+    document.getElementById('system-clock').innerText = new Date().toLocaleTimeString();
+
+    requestAnimationFrame(mainLoop);
+}
+
+window.onload = mainLoop;
