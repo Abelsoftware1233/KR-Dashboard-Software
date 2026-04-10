@@ -1,15 +1,51 @@
-<div id="reactor-panel">
-    <h2>Kerncentrale Controle Paneel</h2>
-    
-    <div class="status-display">
-        <p>Status: <span id="status-text">Stabiel</span></p>
-        <p>Temperatuur: <span id="temp-display">285</span>°C</p>
-        <p>Vermogen: <span id="power-display">0</span> MW</p>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPP Control Interface v1.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="console-frame">
+        <header>
+            <h1>REACTOR CORE MONITORING - UNIT 4</h1>
+            <div id="system-clock">00:00:00</div>
+        </header>
 
-    <div class="controls">
-        <button onclick="adjustRods(10)">Regelstaven Omhoog (Meer Vermogen)</button>
-        <button onclick="adjustRods(-10)">Regelstaven Omlaag (Minder Vermogen)</button>
-        <button id="scram-btn" onclick="emergencyShutdown()">SCRAM (Noodstop)</button>
+        <main id="control-grid">
+            <section class="panel monitoring">
+                <h3>METRICS</h3>
+                <div class="gauge-container">
+                    <div class="metric">
+                        <label>TEMP</label>
+                        <div class="value"><span id="temp-val">285</span>°C</div>
+                    </div>
+                    <div class="metric">
+                        <label>OUTPUT</label>
+                        <div class="value"><span id="power-val">0</span> MW</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel status">
+                <h3>CORE STATUS</h3>
+                <div id="status-indicator" class="status-ok">NOMINAL</div>
+                <div class="log-box" id="event-log">
+                    [SYSTEM READY]
+                </div>
+            </section>
+
+            <section class="panel controls">
+                <h3>PRIMARY CONTROLS</h3>
+                <div class="button-group">
+                    <button class="btn btn-up" onmousedown="startAdjust(0.5)" onmouseup="stopAdjust()">RODS UP</button>
+                    <button class="btn btn-down" onmousedown="startAdjust(-0.5)" onmouseup="stopAdjust()">RODS DOWN</button>
+                </div>
+                <button class="btn-emergency" onclick="scram()">SCRAM</button>
+            </section>
+        </main>
     </div>
-</div>
+    <script src="script.js"></script>
+</body>
+</html>
