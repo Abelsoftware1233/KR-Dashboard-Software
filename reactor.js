@@ -11,22 +11,20 @@ class NuclearReactor {
     calculatePhysics() {
         if (this.isMeltdown) return;
 
-        // Basis hitte generatie
-        let targetTemp = 285 + (this.rods * 5.5);
-        
-        // Koeling effect
+        // Target temperatuur berekenen
+        let targetTemp = 285 + (this.rods * 6.0);
         if (this.pumpsActive) {
-            targetTemp -= (this.rods * 2.5); 
+            targetTemp -= (this.rods * 3.5); // Koeling vermindert de hitte
         }
 
-        // Traagheid: de temperatuur beweegt richting de target
+        // Geleidelijke verandering (Inertia)
         let diff = targetTemp - this.temp;
-        this.temp += diff * 0.05;
+        this.temp += diff * 0.03;
 
-        // Meltdown check
-        if (this.temp > 600 && !this.isMeltdown) {
+        // Meltdown grens
+        if (this.temp > 620 && !this.isMeltdown) {
             this.isMeltdown = true;
-            this.log("CRITICAL FAILURE: MELTDOWN IN PROGRESS");
+            this.log("!!! CRITICAL FAILURE: REACTOR MELTDOWN !!!");
         }
     }
 
@@ -44,34 +42,37 @@ class NuclearReactor {
     }
 
     togglePump(id) {
+        if (this.isMeltdown) return;
         this.pumpsActive = !this.pumpsActive;
-        const btn = document.getElementById(`pump${id}-btn`);
         const label = document.getElementById(`pump${id}-label`);
+        const btn = document.getElementById(`pump${id}-btn`);
         
         if (this.pumpsActive) {
             btn.classList.add('active');
             label.innerText = "RUNNING";
-            label.style.color = "#00ff73";
+            label.className = "pumps-label on";
+            this.log("Secondary cooling pump engaged.");
         } else {
             btn.classList.remove('active');
             label.innerText = "OFF";
-            label.style.color = "#444";
+            label.className = "pumps-label off";
+            this.log("Secondary cooling pump disengaged.");
         }
     }
 
     scram() {
         this.isScram = true;
         this.rods = 0;
-        this.log("!!! EMERGENCY SHUTDOWN (SCRAM) !!!");
-        setTimeout(() => { this.isScram = false; }, 5000);
+        this.log("!!! EMERGENCY SHUTDOWN (SCRAM) INITIATED !!!");
+        // AudioSystem wordt aangeroepen vanuit main.js voor betere sync
     }
 
     log(msg) {
         const log = document.getElementById('event-log');
         const time = new Date().toLocaleTimeString();
-        log.innerHTML = `<div>[${time}] ${msg}</div>` + log.innerHTML;
+        log.innerHTML = `<div class="log-entry">[${time}] ${msg}</div>` + log.innerHTML;
     }
 }
 
-// Maak de reactor globaal beschikbaar voor de HTML knoppen
-window.reactor = new NuclearReactor();
+// Maak de instantie aan
+const reactor = new NuclearReactor();
