@@ -23,7 +23,7 @@
                     <label>CORE TEMP</label>
                     <div class="value"><span id="temp-val">285</span>°C</div>
                     <div class="analog-gauge">
-                        <div class="gauge-bar" id="temp-gauge" style="width: 25%;"></div>
+                        <div class="gauge-bar" id="temp-gauge" style="width: 5%;"></div>
                         <div class="gauge-marks"><span>200</span><span>400</span><span>600</span></div>
                     </div>
                 </div>
@@ -67,15 +67,16 @@
             <section class="panel controls">
                 <h3>PRIMARY CONTROLS</h3>
                 <div class="button-row">
-                    <button class="btn btn-primary btn-up" onmousedown="reactor.startAdjust(0.25)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS UP</button>
-                    <button class="btn btn-primary btn-down" onmousedown="reactor.startAdjust(-0.25)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS DOWN</button>
+                    <button class="btn btn-primary" onmousedown="reactor.startAdjust(0.4)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS UP</button>
+                    <button class="btn btn-primary" onmousedown="reactor.startAdjust(-0.4)" onmouseup="reactor.stopAdjust()" onmouseleave="reactor.stopAdjust()">RODS DOWN</button>
                 </div>
                 <div class="button-row bottom-controls">
-                    <button class="btn btn-alarm" id="alarm-btn" onclick="AudioSystem.toggleAlarmManual()">ALARM SILENCE</button>
+                    <button class="btn btn-alarm" id="alarm-btn" onclick="AudioSystem.stop()">ALARM SILENCE</button>
                     <button class="btn btn-emergency" onclick="reactor.scram()">SCRAM</button>
                 </div>
             </section>
         </main>
+
         <footer>
             <span>SECURITY CLASS 3 // Unauthorized use prohibited // ECHO AI SIMULATOR v1.0</span>
         </footer>
