@@ -1,46 +1,40 @@
-function runSimulation() {
-    // 1. Fysica berekenen
-    reactor.calculatePhysics();
+function updateDashboard() {
+    const r = window.reactor; // Pak de globale reactor
 
-    // 2. Cijfers updaten
-    document.getElementById('temp-val').innerText = reactor.temp.toFixed(1);
-    document.getElementById('power-val').innerText = (reactor.rods * 12.5).toFixed(0);
-    document.getElementById('rod-val').innerText = reactor.rods.toFixed(0);
+    if (!r) return;
 
-    // 3. Balk (Gauge) updaten
+    // Fysica berekenen
+    r.calculatePhysics();
+
+    // UI elementen vullen
+    document.getElementById('temp-val').innerText = r.temp.toFixed(1);
+    document.getElementById('power-val').innerText = (r.rods * 15).toFixed(0);
+    document.getElementById('rod-val').innerText = r.rods.toFixed(0);
+
+    // De visuele balk (gauge)
     const gauge = document.getElementById('temp-gauge');
-    let percentage = ((reactor.temp - 285) / (620 - 285)) * 100;
-    gauge.style.width = Math.min(Math.max(percentage, 2), 100) + "%";
+    let percentage = ((r.temp - 200) / 400) * 100;
+    gauge.style.width = Math.min(Math.max(percentage, 5), 100) + "%";
 
-    // 4. Status & Alarm Logica
-    const status = document.getElementById('status-indicator');
-    
-    if (reactor.isMeltdown) {
-        status.innerText = "MELTDOWN";
-        status.className = "status-crit";
-        AudioSystem.play();
-    } else if (reactor.isScram) {
-        status.innerText = "SCRAM ACTIVE";
-        status.className = "status-crit";
-        AudioSystem.play();
-        if (reactor.temp < 290) reactor.isScram = false; // Reset na afkoeling
-    } else if (reactor.temp > 500) {
-        status.innerText = "OVERHEAT";
-        status.className = "status-crit";
-        AudioSystem.play();
+    // Status tekst
+    const indicator = document.getElementById('status-indicator');
+    if (r.isMeltdown) {
+        indicator.innerText = "MELTDOWN";
+        indicator.className = "status-crit";
+    } else if (r.temp > 450) {
+        indicator.innerText = "WARNING";
+        indicator.className = "status-warn";
     } else {
-        status.innerText = "NOMINAL";
-        status.className = "status-ok";
-        AudioSystem.stop();
+        indicator.innerText = "NOMINAL";
+        indicator.className = "status-ok";
     }
 
     // Klok
     document.getElementById('system-clock').innerText = new Date().toLocaleTimeString();
 
-    requestAnimationFrame(runSimulation);
+    // Volgende frame
+    requestAnimationFrame(updateDashboard);
 }
 
-// Start de loop
-window.onload = () => {
-    runSimulation();
-};
+// Start de loop zodra de pagina klaar is
+window.onload = updateDashboard;
