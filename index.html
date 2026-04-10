@@ -1,0 +1,15 @@
+<div id="reactor-panel">
+    <h2>Kerncentrale Controle Paneel</h2>
+    
+    <div class="status-display">
+        <p>Status: <span id="status-text">Stabiel</span></p>
+        <p>Temperatuur: <span id="temp-display">285</span>°C</p>
+        <p>Vermogen: <span id="power-display">0</span> MW</p>
+    </div>
+
+    <div class="controls">
+        <button onclick="adjustRods(10)">Regelstaven Omhoog (Meer Vermogen)</button>
+        <button onclick="adjustRods(-10)">Regelstaven Omlaag (Minder Vermogen)</button>
+        <button id="scram-btn" onclick="emergencyShutdown()">SCRAM (Noodstop)</button>
+    </div>
+</div>
