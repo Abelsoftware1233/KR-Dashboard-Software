@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NPP Command Center v4.0 PRO</title>
+    <title>NPP Command Center v4.0 - Dual Console</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="command-center">
+    <div id="command-center-wrapper">
         <header>
             <div class="logo-area">
-                <svg class="icon-atom" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                <h1>CENTRAL OPERATIONAL COMMAND</h1>
+                <h1>NPP OPERATIONAL COMMAND - UNIT 4 & 5</h1>
             </div>
             <div class="header-stats">
                 <span id="system-status" class="status-tag ok">SYSTEMS OK</span>
@@ -19,118 +18,98 @@
             </div>
         </header>
 
-        <div class="dual-console-wrapper">
-            <div class="console-unit" id="unit-4">
-                <div class="console-header">
-                    <h2>REACTOR UNIT 04</h2>
-                    <div class="power-state ON" id="u4-state">ACTIVE</div>
-                </div>
+        <div id="main-console-container">
+            <div class="console-frame" id="unit-4">
+                <header class="console-header">
+                    <h2>REACTOR CORE MONITORING - UNIT 4</h2>
+                    <div class="status-bar" id="u4-status">NOMINAL</div>
+                </header>
 
-                <div class="monitor-grid">
-                    <div class="monitor-panel primary-metrics">
+                <main class="console-grid">
+                    <section class="panel monitor">
                         <h3>PRIMARY METRICS</h3>
-                        <div class="gauge-container">
-                            <label>CORE TEMP</label>
-                            <div class="gauge-value"><span id="u4-temp">285</span>°C</div>
-                            <div class="gauge-bar-bg"><div id="u4-temp-gauge" class="gauge-bar-fill ok" style="width: 25%"></div></div>
-                        </div>
-                        <div class="gauge-container">
-                            <label>GENERATOR OUTPUT</label>
-                            <div class="gauge-value"><span id="u4-power">0</span> MW</div>
-                            <div class="gauge-bar-bg"><div id="u4-power-gauge" class="gauge-bar-fill" style="width: 0%"></div></div>
-                        </div>
-                    </div>
+                        <div class="stat"><label>CORE TEMP</label><span id="u4-temp">285.0</span>°C</div>
+                        <div class="stat"><label>PWR OUTPUT</label><span id="u4-power">0</span> MW</div>
+                        <div class="analog-gauge"><div id="u4-gauge" class="gauge-fill ok" style="width: 5%"></div></div>
+                        <div class="rods-pos"><label>RODS POS</label><span id="u4-rods">0</span>%</div>
+                    </section>
 
-                    <div class="monitor-panel rods-status">
-                        <div class="metric-mini">
-                            <label>RODS POS</label>
-                            <span class="value-mini amber"><span id="u4-rods">0</span>%</span>
-                        </div>
-                        <div class="status-display" id="u4-status">NOMINAL</div>
-                    </div>
-
-                    <div class="monitor-panel cooling-system">
-                        <h3>COOLING SYSTEM</h3>
+                    <section class="panel cooling">
+                        <h3>SECONDARY SYSTEMS</h3>
                         <div class="cooling-grid">
-                            <div class="cool-stat">
-                                <label>WATER FLOW</label>
-                                <span class="value-mini green"><span id="u4-flow">0</span> L/s</span>
-                            </div>
-                            <div class="pump-controls">
-                                <label>PUMP 1</label>
-                                <button class="pumps-switch" onclick="window.u4.togglePump(1)" id="u4-pump1-btn">OFF</button>
-                            </div>
+                            <label>Cooling Pump 1</label>
+                            <span class="pump-label off" id="u4-pump1-label">OFF</span>
+                            <button class="pump-switch" onclick="window.u4.togglePump(1)" id="u4-pump1-btn"></button>
                         </div>
                     </div>
-                </div>
 
-                <div class="controls-area">
-                    <h3>PRIMARY CONTROLS</h3>
-                    <div class="rod-controls">
-                        <button class="btn btn-rod-up" onmousedown="u4.startAdjust(0.4)" onmouseup="u4.stopAdjust()" onmouseleave="u4.stopAdjust()">RODS ▲</button>
-                        <button class="btn btn-rod-down" onmousedown="u4.startAdjust(-0.4)" onmouseup="u4.stopAdjust()" onmouseleave="u4.stopAdjust()">RODS ▼</button>
-                    </div>
-                    <button class="btn btn-scram" onclick="u4.scram()">SCRAM</button>
-                </div>
+                    <section class="panel controls">
+                        <h3>PRIMARY CONTROLS</h3>
+                        <div class="button-group">
+                            <button class="btn btn-rod-up" onmousedown="window.u4.startAdjust(0.4)" onmouseup="window.u4.stopAdjust()" onmouseleave="window.u4.stopAdjust()">RODS UP</button>
+                            <button class="btn btn-rod-down" onmousedown="window.u4.startAdjust(-0.4)" onmouseup="window.u4.stopAdjust()" onmouseleave="window.u4.stopAdjust()">RODS DOWN</button>
+                        </div>
+                        <div class="bottom-group">
+                            <button class="btn btn-alarm" id="u4-alarm-silence">ALARM SILENCE</button>
+                            <button class="btn btn-scram" onclick="window.u4.scram()">SCRAM</button>
+                        </div>
+                    </section>
+
+                    <section class="panel log">
+                        <h3>OPERATIONAL LOG</h3>
+                        <div class="log-box" id="u4-event-log">
+                            <div class="log-entry system-msg">[SYSTEM INITIALIZED]</div>
+                        </div>
+                    </section>
+                </main>
             </div>
 
-            <div class="console-unit" id="unit-5">
-                <div class="console-header">
-                    <h2>REACTOR UNIT 05</h2>
-                    <div class="power-state ON" id="u5-state">ACTIVE</div>
-                </div>
+            <div class="console-frame" id="unit-5">
+                <header class="console-header">
+                    <h2>REACTOR CORE MONITORING - UNIT 5</h2>
+                    <div class="status-bar" id="u5-status">NOMINAL</div>
+                </header>
 
-                <div class="monitor-grid">
-                    <div class="monitor-panel primary-metrics">
+                <main class="console-grid">
+                    <section class="panel monitor">
                         <h3>PRIMARY METRICS</h3>
-                        <div class="gauge-container">
-                            <label>CORE TEMP</label>
-                            <div class="gauge-value"><span id="u5-temp">285</span>°C</div>
-                            <div class="gauge-bar-bg"><div id="u5-temp-gauge" class="gauge-bar-fill ok" style="width: 25%"></div></div>
-                        </div>
-                        <div class="gauge-container">
-                            <label>GENERATOR OUTPUT</label>
-                            <div class="gauge-value"><span id="u5-power">0</span> MW</div>
-                            <div class="gauge-bar-bg"><div id="u5-power-gauge" class="gauge-bar-fill" style="width: 0%"></div></div>
-                        </div>
-                    </div>
+                        <div class="stat"><label>CORE TEMP</label><span id="u5-temp">285.0</span>°C</div>
+                        <div class="stat"><label>PWR OUTPUT</label><span id="u5-power">0</span> MW</div>
+                        <div class="analog-gauge"><div id="u5-gauge" class="gauge-fill ok" style="width: 5%"></div></div>
+                        <div class="rods-pos"><label>RODS POS</label><span id="u5-rods">0</span>%</div>
+                    </section>
 
-                    <div class="monitor-panel rods-status">
-                        <div class="metric-mini">
-                            <label>RODS POS</label>
-                            <span class="value-mini amber"><span id="u5-rods">0</span>%</span>
-                        </div>
-                        <div class="status-display" id="u5-status">NOMINAL</div>
-                    </div>
-
-                    <div class="monitor-panel cooling-system">
-                        <h3>COOLING SYSTEM</h3>
+                    <section class="panel cooling">
+                        <h3>SECONDARY SYSTEMS</h3>
                         <div class="cooling-grid">
-                            <div class="cool-stat">
-                                <label>WATER FLOW</label>
-                                <span class="value-mini green"><span id="u5-flow">0</span> L/s</span>
-                            </div>
-                            <div class="pump-controls">
-                                <label>PUMP 1</label>
-                                <button class="pumps-switch" onclick="window.u5.togglePump(1)" id="u5-pump1-btn">OFF</button>
-                            </div>
+                            <label>Cooling Pump 1</label>
+                            <span class="pump-label off" id="u5-pump1-label">OFF</span>
+                            <button class="pump-switch" onclick="window.u5.togglePump(1)" id="u5-pump1-btn"></button>
                         </div>
                     </div>
-                </div>
 
-                <div class="controls-area">
-                    <h3>PRIMARY CONTROLS</h3>
-                    <div class="rod-controls">
-                        <button class="btn btn-rod-up" onmousedown="u5.startAdjust(0.4)" onmouseup="u5.stopAdjust()" onmouseleave="u5.stopAdjust()">RODS ▲</button>
-                        <button class="btn btn-rod-down" onmousedown="u5.startAdjust(-0.4)" onmouseup="u5.stopAdjust()" onmouseleave="u5.stopAdjust()">RODS ▼</button>
-                    </div>
-                    <button class="btn btn-scram" onclick="u5.scram()">SCRAM</button>
-                </div>
+                    <section class="panel controls">
+                        <h3>PRIMARY CONTROLS</h3>
+                        <div class="button-group">
+                            <button class="btn btn-rod-up" onmousedown="window.u5.startAdjust(0.4)" onmouseup="window.u5.stopAdjust()" onmouseleave="window.u5.stopAdjust()">RODS UP</button>
+                            <button class="btn btn-rod-down" onmousedown="window.u5.startAdjust(-0.4)" onmouseup="window.u5.stopAdjust()" onmouseleave="window.u5.stopAdjust()">RODS DOWN</button>
+                        </div>
+                        <div class="bottom-group">
+                            <button class="btn btn-alarm" id="u5-alarm-silence">ALARM SILENCE</button>
+                            <button class="btn btn-scram" onclick="window.u5.scram()">SCRAM</button>
+                        </div>
+                    </section>
+
+                    <section class="panel log">
+                        <h3>OPERATIONAL LOG</h3>
+                        <div class="log-box" id="u5-event-log">
+                            <div class="log-entry system-msg">[SYSTEM INITIALIZED]</div>
+                        </div>
+                    </section>
+                </main>
             </div>
         </div>
-        <footer>
-            <span>SECURITY CLASS 4 // DEEP SIMULATION ACTIVE // ECHO AI CENTRAL</span>
-        </footer>
+        <footer>SECURITY CLASS 4 // DEEP SIMULATION ACTIVE // ECHO AI</footer>
     </div>
 
     <script src="reactor.js"></script>
