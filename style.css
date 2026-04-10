@@ -1,184 +1,200 @@
-/* --- FUNDAMENTAL STYLING --- */
+/* --- FUNDAMENTAL STYLING & PALETTE --- */
 :root {
-    --bg-color: #1a1a1a;
-    --panel-color: #2d2d2d;
+    --bg-color: #0c0d0f;
+    --panel-color: #1a1c1f;
+    --border-color: #31353a;
+    
+    /* Neon Industriële Kleuren */
     --accent-color: #ffb400; /* Industrial Amber */
-    --danger-color: #ff0000;
-    --text-color: #e0e0e0;
-    --ok-color: #00ff00;
+    --danger-color: #ff3c3c; /* Alert Red */
+    --ok-color: #00ff73;     /* Green OK */
+    --text-primary: #e0e0e0;
+    --text-secondary: #888d94;
+    
+    /* Schaduwen voor 3D effect */
+    --box-shadow: 0 4px 15px rgba(0,0,0,0.6);
 }
 
 body {
-    background-color: #000;
-    color: var(--text-color);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
     font-family: 'Courier New', Courier, monospace;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     overflow: hidden;
 }
 
-/* --- CONSOLE FRAME --- */
 #console-frame {
-    width: 900px;
+    width: 1000px;
     background: var(--bg-color);
-    border: 4px solid #444;
-    padding: 20px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    border: 3px solid #222;
+    padding: 15px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    position: relative;
+    border-radius: 4px;
 }
 
 header {
-    border-bottom: 2px solid var(--accent-color);
+    border-bottom: 2px solid #333;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reactor-icon {
+    width: 16px; height: 16px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-color);
 }
 
 header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    letter-spacing: 2px;
+    font-size: 1.1rem; margin: 0; letter-spacing: 1px; color: #aaa;
 }
 
-/* --- GRID LAYOUT --- */
+#system-clock { color: #666; font-size: 0.9rem; }
+
+/* --- LAYOUT GRID --- */
 #control-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 15px;
 }
 
 .panel {
     background: var(--panel-color);
-    border: 2px inset #555;
-    padding: 20px;
-    position: relative;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    box-shadow: var(--box-shadow);
+    border-radius: 2px;
 }
 
 .panel h3 {
-    margin-top: 0;
-    font-size: 0.9rem;
-    color: #888;
-    border-bottom: 1px solid #444;
-    padding-bottom: 5px;
+    margin: 0 0 10px 0; font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px;
 }
 
-/* --- MONITORING METRICS --- */
-.monitoring .metric {
-    margin-bottom: 20px;
+/* --- MONITORING (Visueler) --- */
+.metric-block { margin-bottom: 15px; }
+.metric-block label { display: block; font-size: 0.7rem; color: #666; text-transform: uppercase; }
+
+.value {
+    font-size: 2.5rem; color: var(--accent-color);
+    text-shadow: 0 0 10px rgba(255,180,0,0.4);
+    line-height: 1.2;
 }
 
-.monitoring label {
-    display: block;
-    font-size: 0.8rem;
-    color: #aaa;
+.analog-gauge {
+    height: 12px; background: #000; border: 1px solid #333; margin-top: 5px; position: relative;
 }
 
-.monitoring .value {
-    font-size: 2.8rem;
-    color: var(--accent-color);
-    text-shadow: 0 0 15px rgba(255, 180, 0, 0.6);
+.gauge-bar {
+    height: 100%; background: var(--ok-color); width: 0%;
+    transition: width 0.3s ease, background 0.3s ease;
 }
 
-/* --- STATUS INDICATORS --- */
+.gauge-marks {
+    display: flex; justify-content: space-between; font-size: 0.6rem; color: #444; position: absolute; bottom: -12px; width: 100%;
+}
+
+.output-row { display: flex; gap: 20px; }
+.output-row .value { font-size: 1.8rem; }
+
+/* --- STATUS & PUMPS --- */
+.status-cooling { display: flex; flex-direction: column; gap: 15px; }
+
 #status-indicator {
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-    border: 3px solid #000;
-    text-transform: uppercase;
+    height: 45px; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 1.1rem; text-transform: uppercase;
+    border: 1px solid #000; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
-.status-ok { 
-    background: #064d06; 
-    color: var(--ok-color); 
-    border-color: var(--ok-color) !important; 
+.status-ok { background: #064d06; color: var(--ok-color); border-color: var(--ok-color) !important; text-shadow: 0 0 10px var(--ok-color); }
+.status-warn { background: #444400; color: #ffff00; border-color: #ffff00 !important; }
+.status-crit { background: #5a0000; color: var(--danger-color); border-color: var(--danger-color) !important; animation: blink 0.5s infinite; }
+
+@keyframes blink { 50% { opacity: 0.3; } }
+
+/* Pump Switch */
+.cooling-controls { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+.switch-container { display: flex; align-items: center; gap: 5px; }
+.pumps-label.off { color: #444; }
+.pumps-label.on { color: var(--ok-color); font-weight: bold; }
+
+.pump-switch {
+    width: 30px; height: 18px; border-radius: 9px; background: #333;
+    border: none; position: relative; cursor: pointer; transition: background 0.2s;
 }
 
-.status-warn { 
-    background: #5e5e00; 
-    color: #ffff00; 
-    border-color: #ffff00 !important; 
+.pump-switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; border-radius: 7px;
+    background: #666; transition: left 0.2s;
 }
 
-.status-crit { 
-    background: #610000; 
-    color: var(--danger-color); 
-    border-color: var(--danger-color) !important; 
-    animation: blink 0.5s infinite; 
-}
+.pump-switch.active { background: var(--ok-color); }
+.pump-switch.active::after { left: 14px; background: #fff; }
 
-@keyframes blink { 
-    0% { opacity: 1; } 
-    50% { opacity: 0.2; } 
-    100% { opacity: 1; } 
-}
-
-/* --- LOG BOX --- */
+/* --- LOG (Voller) --- */
+.log { grid-column: span 2; }
 .log-box {
-    height: 140px;
-    background: #000;
-    font-size: 0.8rem;
-    padding: 10px;
-    overflow-y: auto;
-    color: var(--ok-color);
-    border: 1px solid #444;
-    line-height: 1.4;
+    height: 110px; background: #000; border: 1px solid #2a2a2a;
+    padding: 8px; overflow-y: scroll; color: #00ca00; font-size: 0.75rem; line-height: 1.3;
 }
+.system-msg { color: #888; font-style: italic; }
+.alarm-msg { color: var(--danger-color); font-weight: bold; }
 
-/* --- INTERACTIVE CONTROLS --- */
-.button-group {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
+/* --- CONTROLS --- */
+.controls { grid-column: span 2; }
+.button-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.bottom-controls { justify-content: space-between; align-items: flex-end; }
 
 .btn {
-    flex: 1;
-    padding: 20px;
-    background: #3d3d3d;
-    color: white;
-    border: 4px outset #666;
-    cursor: pointer;
-    font-weight: bold;
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
+    flex: 1; padding: 16px; text-transform: uppercase; font-weight: bold;
+    font-family: 'Courier New', monospace; font-size: 0.9rem; cursor: pointer;
+    border-radius: 1px; transition: all 0.1s;
 }
 
-.btn:active { 
-    border-style: inset; 
-    background: #222; 
-    color: var(--accent-color);
+.btn-primary {
+    background: #2a2c30; color: #aaa; border: 2px outset #444;
 }
+.btn-primary:active { border-style: inset; background: #1a1c1f; color: var(--accent-color); }
+
+.btn-alarm {
+    max-width: 180px; padding: 12px; background: #3a321a; color: var(--accent-color);
+    border: 1px solid var(--accent-color); font-size: 0.7rem;
+}
+.btn-alarm.active-silence { background: var(--ok-color); color: #000; border-color: #000; }
 
 .btn-emergency {
-    width: 100%;
-    padding: 30px;
-    background: var(--danger-color);
-    color: white;
-    font-size: 2rem;
-    font-weight: bold;
-    border: 6px outset #800;
-    cursor: pointer;
-    text-shadow: 2px 2px #000;
+    background: var(--danger-color); color: white;
+    font-size: 1.6rem; border: 4px outset #800; text-shadow: 2px 2px 2px #000;
+}
+.btn-emergency:active { border-style: inset; background: #c00; }
+
+/* Footer */
+footer {
+    border-top: 1px solid #222; margin-top: 10px; padding-top: 5px;
+    color: #444; font-size: 0.6rem; text-align: center;
 }
 
-.btn-emergency:active { 
-    border-style: inset; 
-    background: #a00; 
-}
-
-/* Scrollbar voor de logbox */
-.log-box::-webkit-scrollbar {
-    width: 8px;
-}
-.log-box::-webkit-scrollbar-thumb {
-    background: #444;
+/* --- MOBILE TWEAKS (voor je screenshot) --- */
+@media (max-width: 700px) {
+    #console-frame { width: 95vw; padding: 5px; }
+    #control-grid { grid-template-columns: 1fr; gap: 8px; }
+    .log, .controls { grid-column: auto; }
+    .value { font-size: 2rem; }
+    .btn { padding: 12px; font-size: 0.8rem; }
+    .btn-emergency { font-size: 1.2rem; }
 }
