@@ -1,9 +1,8 @@
 class NuclearReactor {
-    constructor(id) {
-        this.id = id;
-        this.temp = 285.0; // Start Temp
+    constructor() {
+        this.temp = 285.0;
         this.rods = 0.0;
-        this.pumpsActive = false; // Koeling staat start OFF
+        this.pumpsActive = false;
         this.isScram = false;
         this.isMeltdown = false;
         this.adjustInterval = null;
@@ -12,54 +11,28 @@ class NuclearReactor {
     calculatePhysics() {
         if (this.isMeltdown) return;
 
-        let coolingFactor = this.pumpsActive ? 1.5 : 0.05;
-        let pwrFactor = (this.rods / 100); // 0.0 tot 1.0
-
-        if (!this.isScram) {
-            // Hitteopbouw door staven - nu trager (factor 12 i.p.v. 6.5)
-            let rawTarget = 285 + (this.rods * 12);
-            
-            // Koeling effect: hoe meer hitte, hoe meer koeling nodig is.
-            let heatGeneration = rawTarget - 285;
-            let effectiveCooling = coolingFactor * heatGeneration * 0.1;
-
-            // Nieuwe target na koeling
-            let finalTarget = Math.max(285, rawTarget - effectiveCooling);
-            
-            // Fysica-traagheid (nog trager omhoog: 0.01)
-            this.temp += (finalTarget - this.temp) * 0.01;
-            
-        } else {
-            // Afkoeling na SCRAM is sneller door regelstaven
-            this.temp += (285 - this.temp) * (0.02 + coolingFactor * 0.02);
-            if (this.temp < 288) {
-                // Veilig genoeg, SCRAM opheffen
-                this.isScram = false;
-                this.log("System Nominal: Auto SCRAM override active.");
-            }
+        // Basis hitte generatie
+        let targetTemp = 285 + (this.rods * 5.5);
+        
+        // Koeling effect
+        if (this.pumpsActive) {
+            targetTemp -= (this.rods * 2.5); 
         }
 
-        // Meltdown Check
-        if (this.temp > 650 && !this.pumpsActive && !this.isScram) {
-            this.triggerMeltdown();
-        }
-    }
+        // Traagheid: de temperatuur beweegt richting de target
+        let diff = targetTemp - this.temp;
+        this.temp += diff * 0.05;
 
-    triggerMeltdown() {
-        if (this.isMeltdown) return;
-        this.isMeltdown = true;
-        AudioSystem.playAlarm(); // Altijd alarm
-        this.rods = 100; // Meltdown forces rods open
-        this.log("CRITICAL FAILURE: Meltdown confirmed.");
-        this.log("Evacuate containment building immediately.");
-        // Visueel effect
-        document.body.style.backgroundColor = "#ff0000";
-        setTimeout(() => { document.body.style.backgroundColor = "var(--danger-color)"; }, 300);
+        // Meltdown check
+        if (this.temp > 600 && !this.isMeltdown) {
+            this.isMeltdown = true;
+            this.log("CRITICAL FAILURE: MELTDOWN IN PROGRESS");
+        }
     }
 
     startAdjust(val) {
         if (this.isScram || this.isMeltdown) return;
-        AudioSystem.init(); // Browser audio unlock
+        if (this.adjustInterval) clearInterval(this.adjustInterval);
         this.adjustInterval = setInterval(() => {
             this.rods = Math.min(Math.max(this.rods + val, 0), 100);
         }, 50);
@@ -67,38 +40,38 @@ class NuclearReactor {
 
     stopAdjust() {
         clearInterval(this.adjustInterval);
+        this.adjustInterval = null;
     }
 
     togglePump(id) {
-        if (this.isMeltdown) return;
         this.pumpsActive = !this.pumpsActive;
         const btn = document.getElementById(`pump${id}-btn`);
         const label = document.getElementById(`pump${id}-label`);
-
+        
         if (this.pumpsActive) {
-            btn.className = "pump-switch active";
-            label.innerText = "RUNNING"; label.className = "pumps-label on";
-            this.log(`Pump ${id} ACTIVATED: Secondary cooling engaged.`);
+            btn.classList.add('active');
+            label.innerText = "RUNNING";
+            label.style.color = "#00ff73";
         } else {
-            btn.className = "pump-switch";
-            label.innerText = "OFF"; label.className = "pumps-label off";
-            this.log(`Pump ${id} STOPPED: Cooling capacity reduced.`);
+            btn.classList.remove('active');
+            label.innerText = "OFF";
+            label.style.color = "#444";
         }
     }
 
     scram() {
-        if (this.isMeltdown) return;
         this.isScram = true;
         this.rods = 0;
-        AudioSystem.playAlarm();
-        this.log("!!! EMERGENCY SHUTDOWN (SCRAM) ACTIVE !!!");
+        this.log("!!! EMERGENCY SHUTDOWN (SCRAM) !!!");
+        setTimeout(() => { this.isScram = false; }, 5000);
     }
 
     log(msg) {
         const log = document.getElementById('event-log');
-        const timestamp = new Date().toLocaleTimeString('nl-NL'); // Nederlands tijdformaat
-        
-        let type = msg.includes("!!!") || msg.includes("FAILURE") ? "alarm-msg" : "";
-        log.innerHTML = `<div class="${type}">[${timestamp}] ${msg}</div>` + log.innerHTML;
+        const time = new Date().toLocaleTimeString();
+        log.innerHTML = `<div>[${time}] ${msg}</div>` + log.innerHTML;
     }
 }
+
+// Maak de reactor globaal beschikbaar voor de HTML knoppen
+window.reactor = new NuclearReactor();
