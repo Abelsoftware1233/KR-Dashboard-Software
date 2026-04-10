@@ -1,6 +1,6 @@
 /**
  * AUDIO SYSTEM - audio.js
- * Beheert de alarmgeluiden voor de reactor simulator
+ * Genereert synthetisch geluid zonder externe MP3 bestanden.
  */
 const AudioSystem = {
     ctx: null,
@@ -9,7 +9,7 @@ const AudioSystem = {
     isLooping: false,
 
     init() {
-        // AudioContext kan alleen starten na een gebruikersinteractie (klik)
+        // Maakt de audio-omgeving aan bij de eerste klik
         if (!this.ctx) {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -17,7 +17,7 @@ const AudioSystem = {
 
     playAlarm() {
         this.init();
-        if (this.oscillator || this.isLooping) return;
+        if (this.isLooping) return; 
 
         this.isLooping = true;
         this.createSiren();
@@ -26,19 +26,19 @@ const AudioSystem = {
     createSiren() {
         if (!this.isLooping) return;
 
+        // Maakt een nieuwe geluidsgolf aan (geen bestand nodig!)
         this.oscillator = this.ctx.createOscillator();
         this.gainNode = this.ctx.createGain();
 
-        // Type 'sawtooth' of 'triangle' werkt het best voor alarmen
+        // 'sawtooth' geeft die typische scherpe alarm-klank
         this.oscillator.type = 'sawtooth'; 
         
-        // Startfrequentie
+        // Frequentie-verloop voor het sirene-effect (300Hz naar 600Hz)
         this.oscillator.frequency.setValueAtTime(300, this.ctx.currentTime);
-        // Glij naar hoge frequentie (sirene effect)
         this.oscillator.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.8);
 
+        // Volume controle (gain)
         this.gainNode.gain.setValueAtTime(0.05, this.ctx.currentTime);
-        // Fade out aan het einde van de puls
         this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.9);
 
         this.oscillator.connect(this.gainNode);
@@ -47,7 +47,7 @@ const AudioSystem = {
         this.oscillator.start();
         this.oscillator.stop(this.ctx.currentTime + 1);
 
-        // Herhaal de puls zolang het alarm aan staat
+        // Start de volgende puls na 1 seconde
         this.oscillator.onended = () => {
             if (this.isLooping) {
                 this.createSiren();
@@ -55,46 +55,19 @@ const AudioSystem = {
         };
     },
 
-    stopAlarm() {
+    stop() {
         this.isLooping = false;
+        
         if (this.gainNode) {
-            // Laat het laatste geluidje netjes uitfaden
-            this.gainNode.gain.setTargetAtTime(0, this.ctx.currentTime, 0.1);
+            // Laat het huidige geluidje zachtjes uitsterven
+            this.gainNode.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
         }
+
         setTimeout(() => {
             if (this.oscillator) {
-                this.oscillator.stop();
+                try { this.oscillator.stop(); } catch(e) {}
                 this.oscillator = null;
             }
-        }, 200);
-    }
-};
-const AudioSystem = {
-    ctx: null,
-    osc: null,
-
-    init() {
-        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    },
-
-    playAlarm() {
-        this.init();
-        if (this.osc) return;
-        this.osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        this.osc.type = 'sawtooth';
-        this.osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-        this.osc.frequency.linearRampToValueAtTime(880, this.ctx.currentTime + 1);
-        this.osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        gain.gain.value = 0.05;
-        this.osc.start();
-    },
-
-    stop() { // Deze naam moet 'stop' zijn voor je HTML knop
-        if (this.osc) {
-            this.osc.stop();
-            this.osc = null;
-        }
+        }, 150);
     }
 };
