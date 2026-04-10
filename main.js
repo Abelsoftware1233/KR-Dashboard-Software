@@ -1,89 +1,46 @@
-/**
- * NPP Command Center Controller v4.0
- * Beheert de communicatie tussen de Reactor Units en de UI.
- */
+function runSimulation() {
+    // 1. Fysica berekenen
+    reactor.calculatePhysics();
 
-const MainController = {
-    /**
-     * Start de centrale simulatie loop
-     */
-    init() {
-        console.log("NPP DUAL SYSTEMS ONLINE...");
-        this.addLogEntry("SYSTEM", "Central Command Hub online. Units 4 & 5 linked.", "green");
-        this.startLoop();
-    },
+    // 2. Cijfers updaten
+    document.getElementById('temp-val').innerText = reactor.temp.toFixed(1);
+    document.getElementById('power-val').innerText = (reactor.rods * 12.5).toFixed(0);
+    document.getElementById('rod-val').innerText = reactor.rods.toFixed(0);
 
-    /**
-     * De hartslag van de applicatie (60fps)
-     */
-    startLoop() {
-        const tick = () => {
-            this.updateAllUnits();
-            this.updateGlobalUI();
-            
-            requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-    },
+    // 3. Balk (Gauge) updaten
+    const gauge = document.getElementById('temp-gauge');
+    let percentage = ((reactor.temp - 285) / (620 - 285)) * 100;
+    gauge.style.width = Math.min(Math.max(percentage, 2), 100) + "%";
 
-    /**
-     * Stuurt fysica-berekeningen en UI-updates aan voor beide reactors
-     */
-    updateAllUnits() {
-        // We halen ze op uit het globale window object waar reactor.js ze heeft gezet
-        if (window.u4) {
-            window.u4.calculatePhysics();
-            window.u4.updateDisplay();
-        }
-        if (window.u5) {
-            window.u5.calculatePhysics();
-            window.u5.updateDisplay();
-        }
-    },
-
-    /**
-     * Algemene UI elementen buiten de units om (Klok, uptime, etc.)
-     */
-    updateGlobalUI() {
-        // Update de klok
-        const now = new Date();
-        document.getElementById('system-clock').innerText = now.toLocaleTimeString('nl-NL');
-
-        // Update algemene systeemstatus tag
-        const systemTag = document.getElementById('system-status');
-        
-        if (window.u4.isMeltdown || window.u5.isMeltdown) {
-            systemTag.innerText = "CRITICAL FAILURE";
-            systemTag.className = "status-tag warn"; // Rood knipperend via CSS
-        } else if (window.u4.temp > 500 || window.u5.temp > 500) {
-            systemTag.innerText = "WARNING";
-            systemTag.className = "status-tag warn";
-        } else {
-            systemTag.innerText = "SYSTEMS NOMINAL";
-            systemTag.className = "status-tag ok";
-        }
-    },
-};
-
-/**
- * Event Listeners & Bootup
- */
-window.onload = () => {
-    MainController.init();
-};
-function mainLoop() {
-    // Update beide units als ze bestaan
-    if (window.u4) {
-        window.u4.updatePhysics();
-    }
-    if (window.u5) {
-        window.u5.updatePhysics();
+    // 4. Status & Alarm Logica
+    const status = document.getElementById('status-indicator');
+    
+    if (reactor.isMeltdown) {
+        status.innerText = "MELTDOWN";
+        status.className = "status-crit";
+        AudioSystem.play();
+    } else if (reactor.isScram) {
+        status.innerText = "SCRAM ACTIVE";
+        status.className = "status-crit";
+        AudioSystem.play();
+        if (reactor.temp < 290) reactor.isScram = false; // Reset na afkoeling
+    } else if (reactor.temp > 500) {
+        status.innerText = "OVERHEAT";
+        status.className = "status-crit";
+        AudioSystem.play();
+    } else {
+        status.innerText = "NOMINAL";
+        status.className = "status-ok";
+        AudioSystem.stop();
     }
 
-    // Tijd update
+    // Klok
     document.getElementById('system-clock').innerText = new Date().toLocaleTimeString();
 
-    requestAnimationFrame(mainLoop);
+    requestAnimationFrame(runSimulation);
 }
 
-window.onload = mainLoop;
+// Start de loop
+window.onload = () => {
+    runSimulation();
+};
